@@ -3,6 +3,9 @@
 
 class MyIR {
   private:
+	const int measureloopcount = 1000;
+	int measureloopmicrosec;
+
   public:
 	MyIR();
 	void Begin();

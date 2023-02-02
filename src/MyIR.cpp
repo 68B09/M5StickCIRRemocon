@@ -7,19 +7,28 @@
 
 // 37.9kHz=26.3852nsec,半分=26.3852/2=13.1926
 #define IR_SHORT_DURATION_MICRO_SEC 12
-#define IR_1T 23 // 1T	※26μs/回 * 23回 = 598μs
 
 MyIR::MyIR() {}
 
 void MyIR::Begin() {
 	pinMode(IR_LED_PIN, OUTPUT);
 	digitalWrite(IR_LED_PIN, IR_LED_OFF);
+
+	measureloopmicrosec = micros();
+	for (int i = 0; i < measureloopcount; i++)
+	{
+		digitalWrite(IR_LED_PIN, IR_LED_ON);
+		delayMicroseconds(IR_SHORT_DURATION_MICRO_SEC);
+		digitalWrite(IR_LED_PIN, IR_LED_OFF);
+		delayMicroseconds(IR_SHORT_DURATION_MICRO_SEC);
+	}
+	measureloopmicrosec = micros() - measureloopmicrosec;
 }
 
 void MyIR::SendSpace(const int pMicroSec) { delayMicroseconds(pMicroSec); }
 
 void MyIR::SendPulse(const int pMicroSec) {
-	int count = pMicroSec / (IR_1T - 8);
+	int count = (int)(((long)pMicroSec * measureloopcount) / measureloopmicrosec) + 1;
 	for (int i = 0; i < count; i++) {
 		digitalWrite(IR_LED_PIN, IR_LED_ON);
 		delayMicroseconds(IR_SHORT_DURATION_MICRO_SEC);
